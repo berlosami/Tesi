@@ -1,0 +1,60 @@
+come si evolve l'impulsività nei maschi e nelle femmine, cioè in quali contesti l'impulsività è adattativa e se le differenze di genere 
+sono anch'esse il frutto di adattamento evoluto
+
+definizione degli agenti
+a T0: 50% maschi e 50% femmine
+ad entrambi i sessi verranno assegnato con la stessa probabilità livelli di impulsività (ottenuti da una curva gaussiana derivata 
+da dati reali):
+temporal discount (scelta impulsiva)
+inhibitory control (azione impulsiva)
+ps. si potrebbe iniziare con modelli diversi per queste due misure di impulsività
+maschi e femmine differiscono nei loro livelli di:
+basal metabolic rate (assegnati anche qui in base a valori presi da una distribuzione normale realistica)
+daily caloric requirements for survival (assegnati anche qui in base a valori presi da una distribuzione normale realistica)
+minimun caloric requirements per accoppiamento e gravidanza : starvation threshold diverse per maschi e femmine
+femmine si riproducono con maschi che hanno un livello minimo di risorse (occorre riflettere su come renderlo realistico): attrattività 
+del maschio e modello quasi realistico dell'investimento paterno: dal momento che non abbiamo generazioni sovrapposte, possiamo immaginare
+che (alcuni maschi) cedono una parte delle loro risorse per accoppiarsi, di fatto aumentando il budget femminile (sarebbe interessante 
+fare anche l'opposto: alcune femmine cedono un pò delle loro risorse ai maschi...)
+
+definizione dell'ambiente
+patches diversi in termini di contenuto calorico
+problema: occorre aggiungere un variabile "tempo oppure costo" associata al patch necessaria per modellare il time discount. 
+High reward/High cost; low reward/low cost. Per esempio:
+i patches con maggiori risorse si trovano più distanti, oppure
+per ottenere una ricompensa (risorse) definiamo un variabile tempo: ricompense maggiori richiedono più tempo di consumo, oppure
+manipolazione dell'incertezza ambientale
+rendiamo incerti i patches in modo individuale, oppure
+facciamo avvenire un evento catastrofico che influenza tutti i patches contemporanemanete?
+
+occorrerà anche definire anche un tempo massimo di vita per ogni agente e come il tratto impulsivo viene trasmesso (cioè quando due 
+individui con livelli di impulsività diversi si accoppiano, come viene trasmesso il tratto? la media dei due? devo pensarci, perché 
+è ovviamente un tratto poligenico...devo pensarci)
+
+mia risposta:
+
+Al momento io stavo iniziando a fare delle prove con un modello minimale sulla base della bozza che ho aggiornato e caricato sul drive. 
+Ho fatto delle prove con il codice soprattutto per vedere che versione di mesa (ho utilizzato la versione 1.2.1) utilizzare e come rendeva a livello grafico. 
+
+Allego due brevi video di come sarebbe la visualizzazione grafica base: gli agenti si muovono casualmente e, a ogni step, fanno una scelta di foraging che 
+influenza la loro energia, nelle due condizioni ambientali (stabile e instabile), la differenza tra i due ambienti è parametrica.
+Ogni agente è caratterizzato da id univoco (visualizzato sulla griglia se ci si passa sopra il cursore) e energia 
+A ogni step l’agente si muove su una cella adiacente, paga un costo energetico fisso e sceglie tra opzione sicura e rischiosa. Se l’energia scende a zero, 
+l’agente viene rimosso.
+Nel codice l’ambiente è rappresentato come: 
+stabile-> alta probabilità di successo dell’opzione rischiosa, ambiente prevedibile-> rischio conveniente
+Instabile-> bassa probabilità di successo dell’opzione rischiosa, ambiente imprevedibile-> rischio di esaurire energie e morte.
+Visualizzazione-> ogni agente è un cerchio, il colore indica la scelta: blu = sicura e rossa = rischiosa.
+Con questa versione di mesa non è possibile aggiungere una barra che indichi l'energia di ciascun agente, ma si può giocare con la dimensione del cerchio, 
+limitata per evitare che occupi più celle.
+Le due condizioni ambientali vengono visualizzate in simulazioni separate, perché non si possono far girare contemporaneamente, quindi si aprono due schede 
+diverse.
+
+Passando alla sua proposta:
+Queste due opzioni credo siano le alternative che potrebbero definire meglio il temporal discount, anche se la prima rischia in alcuni casi di diventare una 
+scelta obbligata per degli agenti che hanno consumato molte energie (ciò comunque potrebbe mettere in risalto una serie di scelte sbagliate, ipotizzo) 
+-i patches con maggiori risorse si trovano più distanti, oppure
+-per ottenere una ricompensa (risorse) definiamo un variabile tempo: ricompense maggiori richiedono più tempo di consumo
+
+Per la trasmissione del tratto, diventa un po' semplicistico, ma si potrebbe fare la media dei genitori +variabile/rumore?
+
