@@ -1,21 +1,10 @@
-
-
-import mesa
-
-
-
-
-from mesa import Agent, Model
-from mesa.space import MultiGrid
-
-from mesa.datacollection import DataCollector
-from mesa.visualization.modules import CanvasGrid, ChartModule
-from mesa.visualization import ModularServer
-
 import random
 import numpy as np
-import random
+from mesa import Agent, Model
+from mesa.space import MultiGrid
+from mesa.datacollection import DataCollector
 
+# ---- SCHEDULER CUSTOM ----
 class RandomActivation:
     """Scheduler minimale che attiva casualmente tutti gli agenti."""
     def __init__(self, model):
@@ -33,17 +22,18 @@ class RandomActivation:
         for agent in random.sample(self.agents, len(self.agents)):
             agent.step()
 
+# ---- AGENTE ----
 class StressAgent(Agent):
-    """Agente con solo loss aversion (λ) e stress."""
-    def __init__(self, unique_id, model):
-        super().__init__(unique_id, model)
-        self.lambda_ = random.uniform(1.5, 2.5)  # avversione alle perdite
+    """Agente con loss aversion (λ) e stress."""
+    def __init__(self, model):
+        super().__init__(model)
+        self.lambda_ = random.uniform(1.5, 2.5)
         self.lambda_base = self.lambda_
         self.wealth = 1.0
-        self.stress = 0.0
+        self.stress = 0
 
     def step(self):
-        # Stress acuto (aumenta lambda temporaneamente)
+        # Stress acuto
         if random.random() < 0.1:
             self.lambda_ = self.lambda_base * 1.5
             self.stress = 1
@@ -51,7 +41,7 @@ class StressAgent(Agent):
             self.lambda_ = self.lambda_base
             self.stress = 0
 
-        # Scelta semplice: gamble vs safe
+        # Decisione gamble vs safe
         gamble_outcomes = [0.2, -0.1]
         safe_reward = 0.05
 
@@ -64,29 +54,33 @@ class StressAgent(Agent):
             outcome = safe_reward
 
         self.wealth += outcome
+
+        # Rimozione sicura se l’agente è "morto"
         if self.wealth <= 0:
-            self.model.grid.remove_agent(self)
             self.model.schedule.remove(self)
+            self.model.grid.remove_agent(self)
+            return
 
         # Movimento casuale
         possible_steps = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
         new_position = random.choice(possible_steps)
         self.model.grid.move_agent(self, new_position)
 
-
+# ---- MODELLO ----
 class StressModel(Model):
-    """Modello con griglia e visualizzazione tipo NetLogo."""
-    def __init__(self, N=100, width=10, height=10):
+    """Modello con griglia, scheduler custom e raccolta dati."""
+    def __init__(self, N=50, width=10, height=10):
+        super().__init__()
         self.num_agents = N
-        self.grid = MultiGrid(width, height, True)
+        self.grid = MultiGrid(width, height, torus=True)
         self.schedule = RandomActivation(self)
         self.running = True
 
-        for i in range(self.num_agents):
-            a = StressAgent(i, self)
+        for _ in range(self.num_agents):
+            a = StressAgent(self)
             self.schedule.add(a)
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
+            x = random.randrange(self.grid.width)
+            y = random.randrange(self.grid.height)
             self.grid.place_agent(a, (x, y))
 
         self.datacollector = DataCollector(
@@ -99,41 +93,25 @@ class StressModel(Model):
         if len(self.schedule.agents) == 0:
             self.running = False
 
+# ---- ESEMPIO DI ESECUZIONE ----
+if __name__ == "__main__":
+    model = StressModel(N=10, width=5, height=5)
+    steps = 20
+    for i in range(steps):
+        if model.running:
+            model.step()
+            print(f"Step {i+1}: Wealths = {[a.wealth for a in model.schedule.agents]}")
+        else:
+            print("Tutti gli agenti sono morti.")
+            break
 
-# ---- VISUALIZZAZIONE ----
-
-def agent_portrayal(agent):
-    """Come visualizzare ogni agente nella griglia."""
-    if agent is None:
-        return
-
-    color = "red" if agent.stress == 1 else "blue"
-    size = 0.8 if agent.stress == 1 else 0.6
-
-    portrayal = {
-        "Shape": "circle",
-        "Color": color,
-        "Filled": "true",
-        "r": size,
-    }
-    return portrayal
+    # Dati medi raccolti
+    print("Media Wealth raccolta:")
+    print(model.datacollector.get_model_vars_dataframe())
 
 
-grid = CanvasGrid(agent_portrayal, 10, 10, 500, 500)
 
-chart = ChartModule(
-    [{"Label": "AvgWealth", "Color": "green"}],
-    data_collector_name="datacollector"
-)
 
-server = ModularServer(
-    StressModel,
-    [grid, chart],
-    "Stress & Loss Aversion Model",
-    {"N": 50, "width": 10, "height": 10}
-)
 
-server.port = 8521
-server.launch()
 
 
