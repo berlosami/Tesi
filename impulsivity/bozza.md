@@ -1,10 +1,9 @@
-
 # **Bozza del modello**
 
 Il modello analizza come l’impulsività emerga in funzione dello stress, della stabilità ambientale e delle differenze tra maschi e femmine, osservando gli effetti su sopravvivenza, accumulo di risorse e successo riproduttivo.
-L’impulsività non è un parametro diretto del modello, ma è definita come **deviazione dalla scelta ottimale** in condizioni date di energia, età e ambiente.
+L’impulsività non è una condizione sperimentale manipolata direttamente, ma emerge dal comportamento degli agenti, osservabile come preferenza tra ricompensa immediata e differita/rischiosa in funzione di energia, età e ambiente.
 
-Ispirato ai modelli di foraging, gli agenti operano in un ambiente naturale semplificato (simile ad un villaggio rurale), dove devono compiere scelte rischiose, di conservazione e riproduttive.
+Ispirato ai modelli di foraging, gli agenti operano in un ambiente naturale semplificato (simile a un villaggio rurale), dove devono compiere scelte rischiose, di conservazione e riproduttive.
 
 Gli step rappresentano unità temporali discrete della simulazione. Ogni step corrisponde a **un giorno**; un anno è composto da **365 step**.
 
@@ -12,16 +11,12 @@ Ogni step è un ciclo completo in cui tutti gli agenti: percepiscono l’ambient
 
 A ogni step gli agenti scelgono tra:
 
-* **Opzione sicura** → guadagno energetico costante, con probabilità minima di perdita
-* **Opzione rischiosa** → guadagno potenzialmente maggiore, con probabilità di perdita
+* **Opzione sicura** → guadagno energetico piccolo ma immediato, con probabilità minima di perdita
+* **Opzione rischiosa** → guadagno potenzialmente maggiore, ottenibile solo dopo un periodo di attesa, con probabilità di perdita
 
-Per ogni agente e per ogni step è possibile definire una **scelta ottimale**, ovvero quella che massimizza il valore atteso di fitness futura.
-Il processo decisionale è influenzato da un **rumore decisionale**, che rappresenta limiti cognitivi, ridotta capacità di controllo e variabilità nel comportamento.
+Gli agenti scelgono tra opzione sicura e opzione rischiosa/differita, valutando naturalmente il trade-off energia/attesa.
+Dopo qualche ciclo di simulazione, si può osservare la direzione prevalente delle scelte degli agenti, da cui emerge la strategia dominante.
 
-Il rumore decisionale non altera la struttura del problema decisionale né il valore della scelta ottimale, ma **aumenta la probabilità che l’agente non la segua**.
-L’impulsività è misurata come la frequenza o l’entità di queste deviazioni dall’ottimo.
-
----
 
 **ENERGIA**
 
@@ -30,16 +25,11 @@ L’energia dell’agente determina la sopravvivenza, la possibilità di spostar
 
 I livelli energetici iniziali, i costi metabolici giornalieri e i costi riproduttivi sono **differenziati tra uomini e donne**, in accordo con differenze fisiologiche.
 
----
-
 Il movimento tra patch ambientali (piccole unità di territorio) simula la ricerca di nuove risorse:
 
-* nell’ambiente **stabile** sono omogenei, prevedibili e poco variabili
+* nell’ambiente **stabile** le patch sono omogenee, prevedibili e poco variabili
 * nell’ambiente **instabile** le patch variano molto in qualità, alcune possono contenere molte risorse, altre nulla, alcune con rischio di perdite, rendendo la mobilità più importante ma anche più rischiosa
 
-Nella condizione con ambiente instabile ci sono più agenti attivi; ne consegue una maggiore competizione e pressione sulle risorse, quindi il rischio di non raggiungere la soglia riproduttiva.
-
----
 
 La riproduzione avviene solo se: l’agente dispone di energia sufficiente e lo step è favorevole (viene definita una finestra temporale che simula il ciclo mestruale). In più la percentuale di possibilità riproduttiva varia in funzione dell'ambiente, se è stabile o meno.
 
@@ -47,69 +37,42 @@ L’età dell’agente influenza la probabilità di riproduzione, l’efficienza
 
 Gli agenti che riescono ad accoppiarsi contribuiscono alla fitness complessiva della strategia decisionale adottata.
 
----
-
 **AMBIENTI**
 
 Ambiente stabile → risorse prevedibili, bassa varianza tra patch, pochi imprevisti → l’opzione sicura è generalmente sufficiente per mantenere energia e accedere al mating.
 
 Ambiente instabile → risorse imprevedibili e varianza elevata → l’opzione sicura potrebbe essere insufficiente per raggiungere la soglia riproduttiva.
 
----
-
 **CONDIZIONI SPERIMENTALI**
 
-Il modello si baserà principalmente su quattro condizioni sperimentali, che combinano due tipi di ambiente e due livelli di **rumore decisionale**:
+Il modello si baserà principalmente su quattro condizioni sperimentali, che combinano due tipi di ambiente e due livelli di attesa/ricompensa:
 
-1. **Basso rumore decisionale – ambiente stabile**
-2. **Basso rumore decisionale – ambiente instabile**
-3. **Alto rumore decisionale – ambiente stabile**
-4. **Alto rumore decisionale – ambiente instabile**
+1. **Ambiente stabile – opzione sicura**
+2. **Ambiente stabile – opzione rischiosa/differita**
+3. **Ambiente instabile – opzione sicura**
+4. **Ambiente instabile – opzione rischiosa/differita**
 
-Il rumore decisionale rappresenta la capacità dell’agente di seguire la scelta ottimale.
-Un rumore basso implica decisioni più coerenti con l’ottimo; un rumore alto implica maggiore variabilità e maggiore probabilità di scelte subottimali.
-
-L’impulsività non è una condizione sperimentale manipolata direttamente, ma **una variabile emergente** che viene misurata come deviazione media dalla scelta ottimale nelle diverse condizioni.
-
----
 
 **STRESS**
 
 Periodicamente alcuni agenti subiscono uno stress event. Gli eventi stressanti sono esclusivamente legati a **carestie e predazione**.
 
-Lo stress è **acuto e di intensità identica** sia in ambiente stabile che instabile. Durante uno stress event il rumore decisionale aumenta temporaneamente, riducendo la capacità dell’agente di seguire la scelta ottimale; il recupero è progressivo.
-
-Lo stress riduce l’efficienza di accumulo energetico e aumenta la probabilità di scelte subottimali durante questi step.
-
----
+Lo stress è **acuto e di intensità identica** sia in ambiente stabile che instabile. Durante uno stress event gli agenti accumulano energia in modo meno efficiente e la probabilità di scegliere l’opzione ottimale diminuisce temporaneamente; il recupero è progressivo. ???
 
 **AGENTI MASCHI E FEMMINE**
 
 Il modello include variabilità biologica coerente con la letteratura su rischio, stress e comportamento riproduttivo.
 
-Generalizzando, i maschi presentano una maggiore propensione al rischio, una risposta allo stress più rapida e un recupero più veloce, associati a un livello medio di rumore decisionale più elevato.
+Generalizzando, i maschi presentano una maggiore propensione al rischio, una risposta allo stress più rapida e un recupero più veloce, associati a una preferenza naturale per opzioni rischiose quando il guadagno atteso è alto.
 
-Le femmine presentano una maggiore conservazione energetica, costi riproduttivi più elevati e una minore variabilità decisionale, associate a un livello medio di rumore decisionale più basso.
-
----
+Le femmine presentano una maggiore conservazione energetica, costi riproduttivi più elevati e una preferenza per opzioni sicure/immediate, associate a un comportamento più conservativo.
 
 **RICONOSCERE L’IMPULSIVITÀ**
 
-L’impulsività emerge dal modo in cui l’agente devia dalla scelta ottimale in condizioni identiche: stesso stato energetico, stessa età, stesso ambiente, stesse probabilità di guadagno e perdita.
+L’impulsività emerge dal modo in cui l’agente sceglie tra opzione sicura/immediata e opzione differita/rischiosa nelle stesse condizioni di energia, età e ambiente.
 
-Se due agenti nelle stesse condizioni prendono decisioni diverse esclusivamente a causa di un diverso livello di rumore decisionale, allora la differenza osservata deriva dalla capacità di seguire l’ottimo e non dalla struttura del problema decisionale.
+Se due agenti nelle stesse condizioni prendono decisioni diverse, la differenza osservata deriva dalle caratteristiche individuali e dalla valutazione temporale della ricompensa, e non dalla struttura del problema decisionale.
 
-In questo senso l’impulsività è distinta sia dalla risk aversion (sensibilità alla varianza) sia dalla loss aversion (peso attribuito alle perdite).
-
----
-
-Se vuoi, il prossimo passo naturale potrebbe essere:
-
-* scrivere **le ipotesi sperimentali (H1–H4)** coerenti con queste condizioni
-* oppure formalizzare **matematicamente il rumore decisionale (es. softmax)**
-* oppure adattare il testo **direttamente in linguaggio da tesi/paper**
-
-Dimmi tu come proseguire.
 
 partire con caratteristiche a priori dell'agente, maschio e femmina, energia, senza rumore, usando situazione sicura e rischiosa (impulsivo sottovaluta il rischio), patch modellato in base al costo, aspettare ricompensa per tempo che consuma calorie, oppure immediata ma poca ricompensa, dopo un tot di giri si dovrebbe vedere impulsività, 2 patch chi sarà che sceglie una o l'altra, quindi che caratteristiche portano ad un'impulsività o non, capire se una è funzionale in un ambiente o l'altro
 
