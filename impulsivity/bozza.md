@@ -111,4 +111,8 @@ Se vuoi, il prossimo passo naturale potrebbe essere:
 
 Dimmi tu come proseguire.
 
+partire con caratteristiche a priori dell'agente, maschio e femmina, energia, senza rumore, usando situazione sicura e rischiosa (impulsivo sottovaluta il rischio), patch modellato in base al costo, aspettare ricompensa per tempo che consuma calorie, oppure immediata ma poca ricompensa, dopo un tot di giri si dovrebbe vedere impulsività, 2 patch chi sarà che sceglie una o l'altra, quindi che caratteristiche portano ad un'impulsività o non, capire se una è funzionale in un ambiente o l'altro
+
+cercare abm foraging theory
+
 
