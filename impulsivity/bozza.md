@@ -5,7 +5,7 @@ L’impulsività non è una condizione sperimentale manipolata direttamente, ma 
 
 Ispirato ai modelli di foraging, gli agenti operano in un ambiente naturale semplificato (simile a un villaggio rurale), dove devono compiere scelte rischiose, di conservazione e riproduttive.
 
-Gli step rappresentano unità temporali discrete della simulazione. Ogni step corrisponde a **un giorno**; un anno è composto da **365 step**.
+Gli step rappresentano unità temporali discrete della simulazione. Ogni step corrisponde a un giorno; un anno è composto da 365 step.
 
 Ogni step è un ciclo completo in cui tutti gli agenti: percepiscono l’ambiente, aggiornano il livello di stress, prendono decisioni, aggiornano energia, subiscono eventuali eventi di stress, si muovono tra patch, se necessario, alla ricerca di risorse migliori, tentano il mating, verificano sopravvivenza.
 
@@ -15,7 +15,7 @@ A ogni step gli agenti scelgono tra:
 * **Opzione rischiosa** → guadagno potenzialmente maggiore, ottenibile solo dopo un periodo di attesa, con probabilità di perdita
 
 Gli agenti scelgono tra opzione sicura e opzione rischiosa/differita, valutando naturalmente il trade-off energia/attesa.
-Dopo qualche ciclo di simulazione, si può osservare la direzione prevalente delle scelte degli agenti, da cui emerge la strategia dominante.
+Dopo qualche ciclo di simulazione, ci si aspetta di osservare la direzione prevalente delle scelte degli agenti, da cui emerge la strategia dominante.
 
 
 **ENERGIA**
@@ -23,12 +23,12 @@ Dopo qualche ciclo di simulazione, si può osservare la direzione prevalente del
 Ogni agente possiede un livello energetico che aumenta con i guadagni, diminuisce con i costi di movimento e con eventuali perdite.
 L’energia dell’agente determina la sopravvivenza, la possibilità di spostarsi nell'ambiente e di accedere al mating; queste ultime due richiedono di superare una soglia di energia (condizione fisiologica minima). Se l’energia scende sotto una certa soglia l'agente muore.
 
-I livelli energetici iniziali, i costi metabolici giornalieri e i costi riproduttivi sono **differenziati tra uomini e donne**, in accordo con differenze fisiologiche.
+I livelli energetici iniziali, i costi metabolici giornalieri e i costi riproduttivi sono differenziati tra uomini e donne, in accordo con differenze fisiologiche.
 
 Il movimento tra patch ambientali (piccole unità di territorio) simula la ricerca di nuove risorse:
 
-* nell’ambiente **stabile** le patch sono omogenee, prevedibili e poco variabili
-* nell’ambiente **instabile** le patch variano molto in qualità, alcune possono contenere molte risorse, altre nulla, alcune con rischio di perdite, rendendo la mobilità più importante ma anche più rischiosa
+* nell’ambiente **stabile** i patch sono omogenei, prevedibili e poco variabili
+* nell’ambiente **instabile** i patch variano molto in qualità, alcuni possono contenere molte risorse, altri nulla, alcuni con rischio di perdite, rendendo la mobilità più importante ma anche più rischiosa
 
 
 La riproduzione avviene solo se: l’agente dispone di energia sufficiente e lo step è favorevole (viene definita una finestra temporale che simula il ciclo mestruale). In più la percentuale di possibilità riproduttiva varia in funzione dell'ambiente, se è stabile o meno.
@@ -55,9 +55,9 @@ Il modello si baserà principalmente su quattro condizioni sperimentali, che com
 
 **STRESS**
 
-Periodicamente alcuni agenti subiscono uno stress event. Gli eventi stressanti sono esclusivamente legati a **carestie e predazione**.
+Periodicamente alcuni agenti subiscono uno stress event. Gli eventi stressanti sono legati a carestie e predazione.
 
-Lo stress è **acuto e di intensità identica** sia in ambiente stabile che instabile. Durante uno stress event gli agenti accumulano energia in modo meno efficiente e la probabilità di scegliere l’opzione ottimale diminuisce temporaneamente; il recupero è progressivo. ???
+Lo stress è acuto e di intensità identica sia in ambiente stabile che instabile. Durante uno stress event gli agenti accumulano energia in modo meno efficiente e il rischio di mortalità è più alto.
 
 **AGENTI MASCHI E FEMMINE**
 
@@ -73,9 +73,5 @@ L’impulsività emerge dal modo in cui l’agente sceglie tra opzione sicura/im
 
 Se due agenti nelle stesse condizioni prendono decisioni diverse, la differenza osservata deriva dalle caratteristiche individuali e dalla valutazione temporale della ricompensa, e non dalla struttura del problema decisionale.
 
-
-partire con caratteristiche a priori dell'agente, maschio e femmina, energia, senza rumore, usando situazione sicura e rischiosa (impulsivo sottovaluta il rischio), patch modellato in base al costo, aspettare ricompensa per tempo che consuma calorie, oppure immediata ma poca ricompensa, dopo un tot di giri si dovrebbe vedere impulsività, 2 patch chi sarà che sceglie una o l'altra, quindi che caratteristiche portano ad un'impulsività o non, capire se una è funzionale in un ambiente o l'altro
-
-cercare abm foraging theory
 
 
