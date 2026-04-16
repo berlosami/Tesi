@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Generated files
+mesa
+/*.png
+
 # Distribution / packaging
 .Python
 build/
