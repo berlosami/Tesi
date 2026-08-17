@@ -189,13 +189,13 @@ class DelayDiscountingAgent(Agent):
     def choose(self):
 
         value_1 = self.subjective_value(
-            R1,
-            D1,
+          self.model.environment.R1,
+          self.model.environment.D1,
         )
 
         value_2 = self.subjective_value(
-            R2,
-            D2,
+          self.model.environment.R2,
+          self.model.environment.D2,
         )
 
         if value_1 >= value_2:
@@ -291,7 +291,7 @@ class DelayDiscountingAgent(Agent):
         # ----------------------------------------------------
 
         cycle_start = (
-            (current_step - 1) % D2 == 0
+            (current_step - 1) % environment.D2 == 0
         )
 
         if cycle_start:
@@ -314,7 +314,7 @@ class DelayDiscountingAgent(Agent):
 
         if self.current_choice == 1:
 
-            reward = R1
+            reward = environment.R1
 
         # ----------------------------------------------------
         # CHOICE 2
@@ -336,7 +336,7 @@ class DelayDiscountingAgent(Agent):
         elif self.current_choice == 2:
 
             reward_due = (
-                current_step % D2 == 0
+              current_step % environment.D2 == 0
             )
 
             if reward_due:
@@ -350,7 +350,7 @@ class DelayDiscountingAgent(Agent):
 
                 if reward_available:
 
-                    reward = R2
+                    reward = environment.R2
 
                 else:
 
@@ -364,8 +364,6 @@ class DelayDiscountingAgent(Agent):
         # ----------------------------------------------------
 
         self.energy += reward
-
-        # Non esiste E_MAX
 
         if self.energy <= 0:
 
@@ -401,6 +399,87 @@ class DelayDiscountingAgent(Agent):
         # ----------------------------------------------------
 
         self.age += 1
+
+def impulsive_population(model):
+
+    return sum(
+        1
+        for agent in model.agents
+        if agent.alive
+        and agent.lambda_value >= 0.35
+    )
+
+
+def intermediate_population(model):
+
+    return sum(
+        1
+        for agent in model.agents
+        if agent.alive
+        and 0.20 <= agent.lambda_value < 0.35
+    )
+
+
+def patient_population(model):
+
+    return sum(
+        1
+        for agent in model.agents
+        if agent.alive
+        and agent.lambda_value < 0.20
+    )
+def impulsive_mean_energy(model):
+
+    agents = [
+        agent
+        for agent in model.agents
+        if agent.alive
+        and agent.lambda_value >= 0.35
+    ]
+
+    if not agents:
+        return 0.0
+
+    return sum(
+        agent.energy
+        for agent in agents
+    ) / len(agents)
+
+
+def intermediate_mean_energy(model):
+
+    agents = [
+        agent
+        for agent in model.agents
+        if agent.alive
+        and 0.20 <= agent.lambda_value < 0.35
+    ]
+
+    if not agents:
+        return 0.0
+
+    return sum(
+        agent.energy
+        for agent in agents
+    ) / len(agents)
+
+
+def patient_mean_energy(model):
+
+    agents = [
+        agent
+        for agent in model.agents
+        if agent.alive
+        and agent.lambda_value < 0.20
+    ]
+
+    if not agents:
+        return 0.0
+
+    return sum(
+        agent.energy
+        for agent in agents
+    ) / len(agents)
 
 
 # ============================================================
@@ -496,8 +575,26 @@ class DelayDiscountingModel(Model):
                 "Population":
                     self.population,
 
-                "Mean Energy":
+                "Mean Energy": 
                     self.mean_energy,
+
+                "Impulsive": 
+                    impulsive_population,
+
+                "Intermediate": 
+                    intermediate_population,
+
+                "Patient": 
+                    patient_population,
+                
+                "ImpulsiveMeanEnergy": 
+                    impulsive_mean_energy,
+
+                "IntermediateMeanEnergy": 
+                    intermediate_mean_energy,
+
+                "PatientMeanEnergy": 
+                    patient_mean_energy,
 
                 "Mean Lambda":
                     self.mean_lambda,
@@ -538,7 +635,7 @@ class DelayDiscountingModel(Model):
                 "Alive":
                     lambda a: a.alive,
 
-                "Death DeathCause":
+                "DeathCause":
                     lambda a: a.death_cause,
 
                 "Death Age":

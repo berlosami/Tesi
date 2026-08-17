@@ -66,12 +66,12 @@ def classify_lambda(lam):
         return "unknown"
 
     if lam < 0.20:
-        return "impulsive"
+        return "patient"
 
     if lam < 0.35:
         return "intermediate"
 
-    return "patient"
+    return "impulsive"
 
 
 # ============================================================
@@ -178,9 +178,7 @@ def collect_model_data(
     model_records,
 ):
 
-    agents = list(
-        model.schedule.agents
-    )
+    agents = list(model.schedule.agents)
 
     alive_agents = [
         agent
@@ -188,9 +186,26 @@ def collect_model_data(
         if agent.alive
     ]
 
-    population = len(
-        alive_agents
-    )
+    population = len(alive_agents)
+
+    impulsive_agents = [
+        agent for agent in alive_agents
+        if agent.lambda_value >= 0.35
+    ]
+
+    intermediate_agents = [
+        agent for agent in alive_agents
+        if 0.20 <= agent.lambda_value < 0.35
+    ]
+
+    patient_agents = [
+        agent for agent in alive_agents
+        if agent.lambda_value < 0.20
+    ]
+
+    impulsive = len(impulsive_agents)
+    intermediate = len(intermediate_agents)
+    patient = len(patient_agents)
 
     if population:
 
@@ -202,9 +217,7 @@ def collect_model_data(
         lambdas = [
             agent.lambda_value
             for agent in alive_agents
-            if not pd.isna(
-                agent.lambda_value
-            )
+            if not pd.isna(agent.lambda_value)
         ]
 
         mean_energy = float(
@@ -218,16 +231,13 @@ def collect_model_data(
             )
 
             if len(lambdas) > 1:
-
                 lambda_variance = float(
                     np.var(
                         lambdas,
                         ddof=1,
                     )
                 )
-
             else:
-
                 lambda_variance = 0.0
 
         else:
@@ -241,11 +251,60 @@ def collect_model_data(
         mean_lambda = np.nan
         lambda_variance = np.nan
 
+    impulsive_agents = [
+        agent for agent in alive_agents
+        if agent.lambda_value >= 0.35
+    ]
+
+    intermediate_agents = [
+        agent for agent in alive_agents
+        if 0.20 <= agent.lambda_value < 0.35
+    ]
+
+    patient_agents = [
+        agent for agent in alive_agents
+        if agent.lambda_value < 0.20
+    ]
+
+    impulsive = len(impulsive_agents)
+    intermediate = len(intermediate_agents)
+    patient = len(patient_agents)
+
+    impulsive_mean_energy = (
+        np.mean([agent.energy for agent in impulsive_agents])
+        if impulsive_agents else np.nan
+    )
+
+    intermediate_mean_energy = (
+        np.mean([agent.energy for agent in intermediate_agents])
+        if intermediate_agents else np.nan
+    )
+
+    patient_mean_energy = (
+        np.mean([agent.energy for agent in patient_agents])
+        if patient_agents else np.nan
+    )
+
     model_records.append(
         {
             "Step": step,
             "Population": population,
+            "Impulsive": impulsive,
+            "Intermediate": intermediate,
+            "Patient": patient,
             "MeanEnergy": mean_energy,
+            "ImpulsiveMeanEnergy":
+                float(impulsive_mean_energy)
+                if not pd.isna(impulsive_mean_energy)
+                else np.nan,
+            "IntermediateMeanEnergy":
+                float(intermediate_mean_energy)
+                if not pd.isna(intermediate_mean_energy)
+                else np.nan,
+            "PatientMeanEnergy":
+                float(patient_mean_energy)
+                if not pd.isna(patient_mean_energy)
+                else np.nan,
             "MeanLambda": mean_lambda,
             "LambdaVariance": lambda_variance,
         }
@@ -514,78 +573,126 @@ def save_csv_files(
 
 # ============================================================
 # GRAFICO 1
-# POPOLAZIONE
+# POPOLAZIONE TOTALE + IMPULSIVI + INTERMEDI + PAZIENTI
+# UN GRAFICO PER OGNI AMBIENTE
 # ============================================================
 
 def plot_population(
     model_data,
 ):
+    
 
-    fig, ax = plt.subplots(
-        figsize=(10, 6)
-    )
+    for environment in ENVIRONMENTS.keys():
 
-    grouped = (
-        model_data
-        .groupby(
-            [
-                "Environment",
-                "Step",
-            ],
-            as_index=False,
-        )
-        ["Population"]
-        .mean()
-    )
-
-    for environment in (
-        ENVIRONMENTS.keys()
-    ):
-
-        data = grouped[
-            grouped["Environment"]
+        data = model_data[
+            model_data["Environment"]
             == environment
-        ]
+        ].copy()
 
         if data.empty:
             continue
 
-        ax.plot(
-            data["Step"],
-            data["Population"],
-            label=environment,
+        grouped = (
+            data
+            .groupby(
+                "Step",
+                as_index=False,
+            )[
+                [
+                    "Population",
+                    "Impulsive",
+                    "Intermediate",
+                    "Patient",
+                ]
+            ]
+            .mean(numeric_only=True)
         )
 
-    ax.set_xlabel(
-        "Età / Step"
-    )
+        fig, ax = plt.subplots(
+            figsize=(10, 6)
+        )
 
-    ax.set_ylabel(
-        "Agenti vivi"
-    )
+        # ----------------------------------------------------
+        # POPOLAZIONE TOTALE
+        # ----------------------------------------------------
 
-    ax.set_title(
-        "Sopravvivenza della popolazione"
-    )
+        ax.plot(
+            grouped["Step"],
+            grouped["Population"],
+            label="Popolazione totale",
+            linewidth=2,
+        )
 
-    ax.legend()
+        # ----------------------------------------------------
+        # IMPULSIVI
+        # ----------------------------------------------------
 
-    ax.grid(
-        alpha=0.3
-    )
+        ax.plot(
+            grouped["Step"],
+            grouped["Impulsive"],
+            label="Impulsivi",
+            linewidth=2,
+            color=AGENT_COLORS["impulsive"],
+        )
 
-    fig.tight_layout()
+        # ----------------------------------------------------
+        # INTERMEDI
+        # ----------------------------------------------------
 
-    fig.savefig(
-        os.path.join(
-            RESULTS_DIR,
-            "population_over_time.png",
-        ),
-        dpi=150,
-    )
+        ax.plot(
+            grouped["Step"],
+            grouped["Intermediate"],
+            label="Intermedi",
+            linewidth=2,
+            color=AGENT_COLORS["intermediate"],
+        )
 
-    plt.close(fig)
+        # ----------------------------------------------------
+        # PAZIENTI
+        # ----------------------------------------------------
 
+        ax.plot(
+            grouped["Step"],
+            grouped["Patient"],
+            label="Pazienti",
+            linewidth=2,
+            color=AGENT_COLORS["patient"],
+        )
+
+        # ----------------------------------------------------
+        # LABEL E TITOLO
+        # ----------------------------------------------------
+
+        ax.set_xlabel(
+            "Età / Step"
+        )
+        ax.set_xlim(0, 110)
+
+        ax.set_ylabel(
+            "Agenti vivi"
+        )
+
+        ax.set_title(
+            f"Sopravvivenza e composizione della popolazione - {environment}"
+        )
+
+        ax.legend()
+
+        ax.grid(
+            alpha=0.3
+        )
+
+        fig.tight_layout()
+
+        fig.savefig(
+            os.path.join(
+                RESULTS_DIR,
+                f"population_{environment.lower()}.png",
+            ),
+            dpi=150,
+        )
+
+        plt.close(fig)
 
 # ============================================================
 # GRAFICO 2
@@ -594,6 +701,7 @@ def plot_population(
 
 def plot_strategy_population(
     agent_data,
+
 ):
 
     grouped = (
@@ -686,8 +794,8 @@ def plot_strategy_population(
 
 
 # ============================================================
-# GRAFICO 3
-# ENERGIA MEDIA
+# GRAFICO
+# ENERGIA MEDIA PER CLASSE DI λ
 # ============================================================
 
 def plot_energy(
@@ -701,6 +809,21 @@ def plot_energy(
         sharex=True,
     )
 
+    classes = [
+        (
+            "ImpulsiveMeanEnergy",
+            "Impulsivi (λ ≥ 0.35)",
+        ),
+        (
+            "IntermediateMeanEnergy",
+            "Intermedi (0.20 ≤ λ < 0.35)",
+        ),
+        (
+            "PatientMeanEnergy",
+            "Pazienti (λ < 0.20)",
+        ),
+    ]
+
     for ax, environment in zip(
         axes,
         ENVIRONMENTS.keys(),
@@ -711,19 +834,41 @@ def plot_energy(
             == environment
         ]
 
+        if data.empty:
+            continue
+
         grouped = (
             data
             .groupby(
                 "Step",
                 as_index=False,
-            )["MeanEnergy"]
-            .mean()
+            )[
+                [
+                    "ImpulsiveMeanEnergy",
+                    "IntermediateMeanEnergy",
+                    "PatientMeanEnergy",
+                ]
+            ]
+            .mean(numeric_only=True)
         )
 
-        ax.plot(
-            grouped["Step"],
-            grouped["MeanEnergy"],
-        )
+        for column, label in classes:
+
+            if column == "ImpulsiveMeanEnergy":
+               color = AGENT_COLORS["impulsive"]
+
+            elif column == "IntermediateMeanEnergy":
+                color = AGENT_COLORS["intermediate"]
+
+            else:
+               color = AGENT_COLORS["patient"]
+
+            ax.plot(
+                  grouped["Step"],
+                  grouped[column],
+                  label=label,
+                  color=color,
+            )
 
         ax.set_title(
             environment
@@ -737,97 +882,28 @@ def plot_energy(
             alpha=0.3
         )
 
+        ax.legend()
+
     axes[-1].set_xlabel(
         "Età / Step"
     )
 
-    fig.tight_layout()
-
-    fig.savefig(
-        os.path.join(
-            RESULTS_DIR,
-            "mean_energy.png",
-        ),
-        dpi=150,
+    fig.suptitle(
+        "Energia media degli agenti vivi per classe di impulsività",
+        fontsize=14,
     )
-
-    plt.close(fig)
-
-
-# ============================================================
-# GRAFICO 4
-# MORTI PER CAUSA
-# ============================================================
-
-def plot_deaths_by_cause(deaths):
-
-    if deaths.empty:
-        print("Nessun decesso registrato.")
-        return
-
-    if "DeathCause" not in deaths.columns:
-        print("ERRORE: manca la colonna 'DeathCause'.")
-        return
-
-    grouped = (
-        deaths
-        .groupby(
-            ["Environment", "DeathCause"],
-            as_index=False,
-        )
-        .size()
-    )
-
-    fig, axes = plt.subplots(
-        3,
-        1,
-        figsize=(10, 10),
-    )
-
-    for ax, environment in zip(
-        axes,
-        ENVIRONMENTS.keys(),
-    ):
-
-        data = grouped[
-            grouped["Environment"] == environment
-        ]
-
-        if data.empty:
-            ax.set_title(
-                f"{environment} - nessun decesso"
-            )
-            continue
-
-        ax.bar(
-            data["DeathCause"].astype(str),
-            data["size"],
-        )
-
-        ax.set_title(
-            f"Morti per causa - {environment}"
-        )
-
-        ax.set_ylabel("Morti")
-        ax.grid(
-            axis="y",
-            alpha=0.3,
-        )
-
-    axes[-1].set_xlabel("Causa")
 
     fig.tight_layout()
 
     fig.savefig(
         os.path.join(
             RESULTS_DIR,
-            "deaths_by_cause.png",
+            "mean_energy_by_lambda_class.png",
         ),
         dpi=150,
     )
 
     plt.close(fig)
-
 
 # ============================================================
 # GRAFICO 5
@@ -1105,10 +1181,6 @@ if __name__ == "__main__":
 
     plot_energy(
         model_data
-    )
-
-    plot_deaths_by_cause(
-        deaths
     )
 
     plot_deaths_by_age_strategy(
