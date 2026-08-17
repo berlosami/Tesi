@@ -1,6 +1,8 @@
 Environment,DeathCause,Strategy,Deaths
 Harsh,age,impulsive,308
-Harsh,age,intermediate,349
-Harsh,age,patient,328
+Harsh,age,intermediate,81
+Harsh,age,patient,10
+Harsh,energy,intermediate,271
+Harsh,energy,patient,325
 Volatile,energy,intermediate,197
 Volatile,energy,patient,227

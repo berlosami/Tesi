@@ -103,6 +103,8 @@ class HarshEnvironment(BaseEnvironment):
     # Mortalità age-dependent.
     AGE_MORTALITY = True
 
+    METABOLIC_COST = 2
+
 
 def create_environment(choice):
     """
